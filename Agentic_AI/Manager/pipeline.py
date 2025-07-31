@@ -63,7 +63,7 @@ def create_workflow(input_path: str, output_dir: str):
         raw = state.get("text_ocr", "")
         logger.info(f"cleaning text filename={state.get('filename', 'unknown')}, feedback_round={state.get('feedback_round',0)}")
         cleaned = text_cleaner.clean_text(raw)
-        logger.info(f"Completed cleaning filename={state.get('filename', 'unknown')}")
+        logger.info(f"Comple cleaning filename={state.get('filename', 'unknown')}")
         return {"cleaned_text": cleaned}
 
     def node_quality_check(state: State) -> dict:
@@ -131,13 +131,11 @@ def create_workflow(input_path: str, output_dir: str):
         output_qa_dataset.save_dataset(state.get("qa_evaluation", []), save_path)
         logger.info(f"Saved QA dataset for filename={filename} at {save_path}")
 
-        # Progress logging
         i = state.get("index", 0) + 1
         N = len(ocr_records)
         logger.info(f"Progress: {i}/{N} records ({(i/N)*100:.2f}%)")
 
-        # Estimated time remaining
-        elapsed = (datetime.now() - start_time).total_seconds() / 60  # minutes
+        elapsed = (datetime.now() - start_time).total_seconds() / 60 
         T_avg = elapsed / i if i > 0 else 1
         est_remaining = N - i
         est_finish = datetime.now() + timedelta(minutes=est_remaining * T_avg)
@@ -161,18 +159,17 @@ def create_workflow(input_path: str, output_dir: str):
     graph_builder.add_edge("Clean_Text", "Quality_Check")
     graph_builder.add_edge("Quality_Check", "Feedback_Text")
 
-    graph_builder.add_edge("Feedback_Text", "Clean_Text")  # fail
-    graph_builder.add_edge("Feedback_Text", "Question_Plan")  # pass
+    graph_builder.add_edge("Feedback_Text", "Clean_Text")
+    graph_builder.add_edge("Feedback_Text", "Question_Plan")
 
     graph_builder.add_edge("Question_Plan", "Generate_QA")
     graph_builder.add_edge("Generate_QA", "Evaluate_QA")
     graph_builder.add_edge("Evaluate_QA", "Feedback_QA")
 
-    graph_builder.add_edge("Feedback_QA", "Clean_Text")  # fail
-    graph_builder.add_edge("Feedback_QA", "Save_QA")    # pass
+    graph_builder.add_edge("Feedback_QA", "Clean_Text")
+    graph_builder.add_edge("Feedback_QA", "Save_QA")
 
-    graph_builder.add_edge("Save_QA", "Load_OCR")  # วนไป record ถัดไป
-    graph_builder.add_edge("Load_OCR", END)  # ถ้า index เกิน ให้จบ
-
+    graph_builder.add_edge("Save_QA", "Load_OCR")
+    graph_builder.add_edge("Load_OCR", END)
     graph = graph_builder.compile()
     return graph
