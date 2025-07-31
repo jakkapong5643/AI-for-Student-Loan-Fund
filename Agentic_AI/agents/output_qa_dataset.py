@@ -3,7 +3,9 @@ from datetime import datetime
 import json
 
 def save_dataset(qa_pairs: list, output_path: str):
-
+    """
+    บันทึก QA Dataset พร้อม metadata เป็น CSV
+    """
     records = []
     for idx, qa in enumerate(qa_pairs):
         record = {
@@ -27,4 +29,4 @@ def save_dataset(qa_pairs: list, output_path: str):
 
     df = pd.DataFrame(records)
     df.to_csv(output_path, index=False)
-    print(f"Saved {output_path}")
+    print(f"Saved QA dataset to {output_path}")

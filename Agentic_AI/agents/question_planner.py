@@ -2,6 +2,15 @@ import json
 from utils.langchain_helpers import call_openai_llm
 
 def plan_questions(text: str) -> dict:
+    """
+    ใช้ LLM วางแผนจำนวนคำถาม, distribution ของความยาก และประเภทคำตอบ
+    คืนค่า dict เช่น:
+    {
+      "num_questions": int,
+      "distribution": {"easy": int, "medium": int, "hard": int},
+      "answer_types": {"easy": "short", "medium": "short", "hard": "long"}
+    }
+    """
 
     prompt = f"""
 ข้อความต่อไปนี้เป็นข้อความภาษาไทยที่ผ่านการตรวจสอบความถูกต้องแล้ว:
@@ -40,7 +49,7 @@ def plan_questions(text: str) -> dict:
         if not all(k in plan for k in ["num_questions", "distribution", "answer_types"]):
             raise ValueError("Response JSON missing required keys")
     except Exception as e:
-        print(f"Warning: ไม่สามารถทำตาม แผนคำถามจาก LLM ได้, ใช้แผน default แทน: {e}")
+        print(f"Warning: ไม่สามารถ parse แผนคำถามจาก LLM ได้, ใช้แผน default แทน: {e}")
         plan = {
             "num_questions": 5,
             "distribution": {"easy": 2, "medium": 2, "hard": 1},

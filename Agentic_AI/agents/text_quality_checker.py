@@ -2,7 +2,9 @@ from utils.langchain_helpers import call_openai_llm
 from configs import settings
 
 def evaluate_text_quality(text: str) -> int:
-
+    """
+    ให้คะแนนคุณภาพข้อความ (1-10) โดย LLM ประเมินความสมเหตุสมผล, ครบถ้วน, ความยาวเหมาะสม
+    """
     prompt = f"""
 ข้อความต่อไปนี้เป็นข้อความภาษาไทยที่ได้รับการแก้ไขแล้ว:
 
@@ -24,4 +26,4 @@ def evaluate_text_quality(text: str) -> int:
         if score > 10: score = 10
         return score
     except Exception:
-        return 1
+        return 1  # กรณีผิดพลาด ให้คะแนนต่ำสุด
