@@ -63,7 +63,7 @@ def create_workflow(input_path: str, output_dir: str):
         raw = state.get("text_ocr", "")
         logger.info(f"cleaning text filename={state.get('filename', 'unknown')}, feedback_round={state.get('feedback_round',0)}")
         cleaned = text_cleaner.clean_text(raw)
-        logger.info(f"Comple cleaning filename={state.get('filename', 'unknown')}")
+        logger.info(f"Completed cleaning filename={state.get('filename', 'unknown')}")
         return {"cleaned_text": cleaned}
 
     def node_quality_check(state: State) -> dict:
@@ -90,7 +90,7 @@ def create_workflow(input_path: str, output_dir: str):
                 return {"feedback_round": MAX_FEEDBACK_ROUNDS}
 
     def node_question_plan(state: State) -> dict:
-        logger.info(f"Planning questions for filename={state.get('filename', 'unknown')}")
+        logger.info(f"Planning questions filename={state.get('filename', 'unknown')}")
         plan = question_planner.plan_questions(state.get("cleaned_text", ""))
         logger.info(f"Completed planning questions filename={state.get('filename', 'unknown')}")
         return {"qa_plan": plan}
@@ -159,9 +159,8 @@ def create_workflow(input_path: str, output_dir: str):
     graph_builder.add_edge("Clean_Text", "Quality_Check")
     graph_builder.add_edge("Quality_Check", "Feedback_Text")
 
-    graph_builder.add_edge("Feedback_Text", "Clean_Text")
+    graph_builder.add_edge("Feedback_Text", "Clean_Text")  
     graph_builder.add_edge("Feedback_Text", "Question_Plan")
-
     graph_builder.add_edge("Question_Plan", "Generate_QA")
     graph_builder.add_edge("Generate_QA", "Evaluate_QA")
     graph_builder.add_edge("Evaluate_QA", "Feedback_QA")
@@ -171,5 +170,6 @@ def create_workflow(input_path: str, output_dir: str):
 
     graph_builder.add_edge("Save_QA", "Load_OCR")
     graph_builder.add_edge("Load_OCR", END)
+
     graph = graph_builder.compile()
     return graph

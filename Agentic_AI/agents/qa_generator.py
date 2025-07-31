@@ -1,10 +1,7 @@
 from utils.langchain_helpers import call_openai_llm
 
 def generate_qa(text: str, plan: dict):
-    """
-    สร้างชุดคำถาม-คำตอบ ตามแผนที่กำหนด
-    คืนค่า list dict: [{'question_text':..., 'answer_text':..., 'difficulty_level':..., 'answer_type':...}, ...]
-    """
+
     total_q = plan.get("num_questions", 5)
     dist = plan.get("distribution", {})
     answer_types = plan.get("answer_types", {})
