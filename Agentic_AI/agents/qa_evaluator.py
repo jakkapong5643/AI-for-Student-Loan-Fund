@@ -1,4 +1,4 @@
-from utils.langchain_helpers import call_openai_llm
+from utils.langchain_helpers import call_llm
 
 def evaluate(qa_pair: dict) -> dict:
 
@@ -27,7 +27,7 @@ def evaluate(qa_pair: dict) -> dict:
 """
 
 
-    response = call_openai_llm(prompt)
+    response = call_llm(prompt)
 
     import json
     try:

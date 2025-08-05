@@ -1,4 +1,4 @@
-from utils.langchain_helpers import call_openai_llm
+from utils.langchain_helpers import call_llm
 from configs import settings
 
 def evaluate_text_quality(text: str) -> int:
@@ -18,10 +18,10 @@ def evaluate_text_quality(text: str) -> int:
 """
 
     try:
-        score_str = call_openai_llm(prompt)
+        score_str = call_llm(prompt)
         score = int(score_str.strip())
         if score < 1: score = 1
         if score > 10: score = 10
         return score
     except Exception:
-        return 1 
+        return 0

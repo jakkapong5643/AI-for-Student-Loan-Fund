@@ -1,5 +1,5 @@
 import json
-from utils.langchain_helpers import call_openai_llm
+from utils.langchain_helpers import call_llm
 
 def plan_questions(text: str) -> dict:
 
@@ -33,17 +33,17 @@ def plan_questions(text: str) -> dict:
 ห้ามเพิ่มข้อมูลหรือคำอธิบายอื่น ๆ นอกเหนือจาก JSON นี้
 """
 
-    response = call_openai_llm(prompt)
+    response = call_llm(prompt)
 
     try:
         plan = json.loads(response)
         if not all(k in plan for k in ["num_questions", "distribution", "answer_types"]):
             raise ValueError("Response JSON missing")
     except Exception as e:
-        print(f"Warning: ไม่สามารถ ทำตามแผนคำถามจาก LLM ได้, ใช้แผน default แทน: {e}")
+        print(f"Warning: ไม่สามารถทำตามแผนคำถามจาก LLM ได้, ใช้แผน default แทน: {e}")
         plan = {
-            "num_questions": 5,
-            "distribution": {"easy": 2, "medium": 2, "hard": 1},
+            "num_questions": 15,
+            "distribution": {"easy": 5, "medium": 5, "hard": 5},
             "answer_types": {"easy": "short", "medium": "short", "hard": "long"}
         }
 

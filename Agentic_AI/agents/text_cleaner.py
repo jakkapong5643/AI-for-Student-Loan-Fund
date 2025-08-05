@@ -1,4 +1,4 @@
-from utils.langchain_helpers import call_openai_llm
+from utils.langchain_helpers import call_llm
 from utils.thai_text_utils import normalize_thai_text
 
 def clean_text(raw_text: str) -> str:
@@ -15,5 +15,5 @@ def clean_text(raw_text: str) -> str:
 4. ตอบกลับเฉพาะข้อความที่แก้ไขแล้วเท่านั้น โดยไม่ต้องมีคำอธิบายหรือข้อความเพิ่มเติมใด ๆ
 
 โปรดเริ่มแก้ไขข้อความจากบรรทัดนี้:"""
-    cleaned_text = call_openai_llm(prompt)
+    cleaned_text = call_llm(prompt)
     return cleaned_text

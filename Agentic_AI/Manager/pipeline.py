@@ -128,7 +128,12 @@ def create_workflow(input_path: str, output_dir: str):
         filename = state.get("filename", f"unknown_{state.get('index', 0)}")
         os.makedirs(output_dir, exist_ok=True)
         save_path = os.path.join(output_dir, f"QA_{filename}.csv")
-        output_qa_dataset.save_dataset(state.get("qa_evaluation", []), save_path)
+        output_qa_dataset.save_dataset(
+            qa_pairs=state.get("qa_evaluation", []),
+            output_path=save_path,
+            cleaned_text=state.get("cleaned_text", "")
+        )
+        
         logger.info(f"Saved QA dataset for filename={filename} at {save_path}")
 
         i = state.get("index", 0) + 1
@@ -165,7 +170,7 @@ def create_workflow(input_path: str, output_dir: str):
     graph_builder.add_edge("Generate_QA", "Evaluate_QA")
     graph_builder.add_edge("Evaluate_QA", "Feedback_QA")
 
-    graph_builder.add_edge("Feedback_QA", "Clean_Text")
+    graph_builder.add_edge("Feedback_QA", "Generate_QA")
     graph_builder.add_edge("Feedback_QA", "Save_QA")
 
     graph_builder.add_edge("Save_QA", "Load_OCR")

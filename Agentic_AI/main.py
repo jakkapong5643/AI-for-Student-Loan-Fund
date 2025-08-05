@@ -5,10 +5,11 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s | %(levelname)s | %(message)s',
 )
+logging.getLogger("AFC").setLevel(logging.WARNING)
 
 def main():
-    input_path = r"\.\data\Input\test.csv"
-    output_dir = r"\.\data\Output"
+    input_path = r"C:\Final Project\Code\Code\Test2\AI-for-Student-Loan-Fund\Agentic_AI\data\Input\df_true.csv"
+    output_dir = r"C:\Final Project\Code\Code\Test2\AI-for-Student-Loan-Fund\Agentic_AI\data\Output"
 
     logging.info("Start workflow")
     graph = create_workflow(input_path, output_dir)

@@ -1,4 +1,4 @@
-from utils.langchain_helpers import call_openai_llm
+from utils.langchain_helpers import call_llm
 
 def generate_qa(text: str, plan: dict):
 
@@ -9,11 +9,11 @@ def generate_qa(text: str, plan: dict):
     qas = []
 
     prompt = f"""
-ข้อความต่อไปนี้เป็นข้อความภาษาไทย:
+ข้อความต่อไปนี้เป็นเนื้อหาภาษาไทยจากบทความ/กฎหมาย/เนื้อหาวิชาการ:
 
 {text}
 
-กรุณาสร้างชุดคำถาม-คำตอบจำนวนทั้งหมด {total_q} คู่ โดยแบ่งตามระดับความยากและประเภทคำตอบ ดังนี้:
+กรุณาสร้างชุดคำถาม-คำตอบจำนวนทั้งหมด {total_q} คู่ โดยคำถามควรมีความสมจริง เหมือนนักศึกษาที่กำลังเรียนวิชานี้และมีความสนใจอยากรู้อย่างแท้จริง (ไม่ใช่คำถามเพียงเพื่อทดสอบความจำ) โดย **ห้ามใช้คำว่า “ในเอกสารนี้”, “จากข้อความข้างต้น”, “ตามที่ระบุไว้” หรือคำอื่น ๆ ที่ชี้ว่าเป็นเอกสาร** และ **หลีกเลี่ยงคำตอบที่กำกวม วนซ้ำ หรือไม่มีสาระ**
 
 - Easy: {dist.get('easy', 0)} คำถาม (ตอบสั้น)
 - Medium: {dist.get('medium', 0)} คำถาม (ตอบสั้น)
@@ -34,7 +34,7 @@ def generate_qa(text: str, plan: dict):
 """
 
 
-    response = call_openai_llm(prompt)
+    response = call_llm(prompt)
 
     lines = response.split('\n')
     for line in lines:
