@@ -8,7 +8,7 @@ logging.basicConfig(
 logging.getLogger("AFC").setLevel(logging.WARNING)
 
 def main():
-    input_path = r"C:\Final Project\Code\Code\Test2\AI-for-Student-Loan-Fund\Agentic_AI\data\Input\df_true.csv"
+    input_path = r"C:\Final Project\Code\Code\Test2\AI-for-Student-Loan-Fund\Agentic_AI\data\Input\test.csv"
     output_dir = r"C:\Final Project\Code\Code\Test2\AI-for-Student-Loan-Fund\Agentic_AI\data\Output"
 
     logging.info("Start workflow")

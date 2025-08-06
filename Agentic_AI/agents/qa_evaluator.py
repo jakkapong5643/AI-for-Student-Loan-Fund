@@ -3,7 +3,7 @@ from utils.langchain_helpers import call_llm
 def evaluate(qa_pair: dict) -> dict:
 
     prompt = f"""
-กรุณาประเมินคุณภาพของคำถามและคำตอบต่อไปนี้ โดยให้คะแนนในช่วง 1-10 (โดย 10 คือดีที่สุด และ 1 คือแย่มาก) โดยพิจารณาจาก:
+กรุณาประเมินคุณภาพของคำถามและคำตอบต่อไปนี้ โดยให้คะแนนในช่วง 1-5 (โดย 5 คือดีที่สุด และ 1 คือแย่มาก) โดยพิจารณาจาก:
 
 - ความชัดเจนของคำถามและคำตอบ
 - ความสอดคล้องกับข้อความต้นทาง
@@ -16,8 +16,8 @@ def evaluate(qa_pair: dict) -> dict:
 
 {{
   "question_quality_score": <int จาก 1 ถึง 10>,
-  "answer_quality_score": <int จาก 1 ถึง 10>,
-  "overall_qa_score": <float จาก 1.0 ถึง 10.0>,
+  "answer_quality_score": <int จาก 1 ถึง 5>,
+  "overall_qa_score": <float จาก 1.0 ถึง 5.0>,
   "pass_fail_flag": "<pass หรือ fail>"
 }}
 
