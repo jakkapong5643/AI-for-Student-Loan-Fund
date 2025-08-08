@@ -5,6 +5,9 @@ from langgraph.graph.message import add_messages
 from datetime import datetime, timedelta
 import os
 
+logging.getLogger("AFC").setLevel(logging.CRITICAL)
+logging.getLogger("AFC").propagate = False
+
 start_time = datetime.now()
 
 from agents import (
