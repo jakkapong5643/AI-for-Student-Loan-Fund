@@ -1,0 +1,54 @@
+{
+  "created_at": "2025-09-11T17:38:57.354122",
+  "emb_model": "BAAI/bge-m3",
+  "device": "cpu",
+  "index_type": "IVF448,PQ64",
+  "nprobe": 32,
+  "files": 253,
+  "total_vectors": 3216,
+  "chunk_size": 1000,
+  "chunk_overlap": 150,
+  "include_faq_as_docs": true,
+  "top_sources_by_chunks": [
+    [
+      "สำนักงานคณะกรรมการกฤษฎีกา_พระราชบัญญัติ.pdf",
+      39
+    ],
+    [
+      "QA_14.17-a31.pdf",
+      39
+    ],
+    [
+      "QA_19082563 - แผนดิจิทัล 2562-2565-ทบทวนแผนยุทธศาสตร์.pdf",
+      39
+    ],
+    [
+      "QA_2563 .pdf",
+      39
+    ],
+    [
+      "QA_4-2565.pdf",
+      39
+    ],
+    [
+      "QA_63C8.pdf",
+      39
+    ],
+    [
+      "QA_Hand-Book-faq-2560.pdf",
+      39
+    ],
+    [
+      "QA_Hand-Book-faq-2561.pdf",
+      39
+    ],
+    [
+      "QA_manual2566.pdf",
+      39
+    ],
+    [
+      "QA_o8 ฝยส..pdf",
+      39
+    ]
+  ]
+}
