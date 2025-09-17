@@ -9,7 +9,7 @@ logging.getLogger("AFC").setLevel(logging.ERROR)
 
 def main():
     input_path = r"C:\Final Project\Code\Code\Agentic_AI\data\Input\test.csv"
-    output_dir = r"C:\Final Project\Code\Code\Agentic_AI\data\Output"
+    output_dir = r"C:\Final Project\Code\Code\Agentic_AI\data\output2"
 
     logging.info("Start workflow")
     graph = create_workflow(input_path, output_dir)
@@ -30,7 +30,7 @@ def main():
 
     state = init_state
     while True:
-        state = graph.invoke(state)
+        state = graph.invoke(state, config={"recursion_limit": 10_000})
         if not state:
             logging.info("completed")
             break

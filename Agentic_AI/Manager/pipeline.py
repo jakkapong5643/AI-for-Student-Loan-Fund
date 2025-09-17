@@ -16,7 +16,6 @@ from agents import (
     text_quality_checker,
     question_planner,
     qa_generator,
-    qa_evaluator,
     output_qa_dataset,
 )
 
@@ -27,7 +26,7 @@ logging.basicConfig(
 )
 
 QUALITY_THRESHOLD = 3
-MAX_FEEDBACK_ROUNDS = 3
+MAX_FEEDBACK_ROUNDS = 2
 
 class State(TypedDict):
     messages: Annotated[List[Dict[str, Any]], add_messages]
@@ -39,11 +38,9 @@ class State(TypedDict):
     quality_pass: bool
     qa_plan: Dict[str, Any]
     qa_pairs: List[Dict[str, Any]]
-    qa_evaluation: List[Dict[str, Any]]
     text_feedback_round: int
-    qa_feedback_round: int
     quality_feedback: str
-    qa_feedback: str
+    need_question_plan: bool
 
 def create_workflow(input_path: str, output_dir: str):
     ocr_records = ocr_text.load_ocr_text(input_path)
@@ -62,9 +59,8 @@ def create_workflow(input_path: str, output_dir: str):
                 "filename": record["filename"],
                 "text_ocr": record["text_ocr"],
                 "text_feedback_round": 0,
-                "qa_feedback_round": 0,
                 "quality_feedback": "",
-                "qa_feedback": "",
+                "need_question_plan": True,
             }
         else:
             logger.info(f"All {total} records processed. Workflow is complete.")
@@ -98,20 +94,33 @@ def create_workflow(input_path: str, output_dir: str):
             return {
                 "quality_feedback": "",
                 "text_feedback_round": 0,
+                "need_question_plan": False,
             }
 
         if text_feedback_round >= MAX_FEEDBACK_ROUNDS:
             logger.error(f"Max text feedback rounds filename={state.get('filename', 'unknown')}, skipping cleaning.")
-            return {"text_feedback_round": MAX_FEEDBACK_ROUNDS}
+            return {
+                "text_feedback_round": MAX_FEEDBACK_ROUNDS,
+                "need_question_plan": True,
+            }
 
         feedback_reason = text_quality_checker.get_feedback_reason(state.get("cleaned_text", ""))
-        logger.info(f"Feedback for text cleaning (round {text_feedback_round + 1}): {feedback_reason}")
+        logger.info(f"Feedback for text cleaning (round {text_feedback_round + 1})")
 
         return {
             "text_feedback_round": text_feedback_round + 1,
             "text_ocr": state.get("cleaned_text", ""),
             "quality_feedback": feedback_reason,
+            "need_question_plan": False,
         }
+
+    def node_feedback_router(state: State) -> dict:
+        if state.get("need_question_plan", False):
+            logger.info(f"Routing to Question_Plan for filename={state.get('filename', 'unknown')}")
+            return {}
+        else:
+            logger.info(f"Routing back to Clean_Text for filename={state.get('filename', 'unknown')}")
+            return {}
 
     def node_question_plan(state: State) -> dict:
         logger.info(f"Planning questions filename={state.get('filename', 'unknown')}")
@@ -120,54 +129,21 @@ def create_workflow(input_path: str, output_dir: str):
         return {"qa_plan": plan}
 
     def node_generate_qa(state: State) -> dict:
-        feedback = state.get("qa_feedback", "")
         qas = qa_generator.generate_qa(
             text=state.get("cleaned_text", ""),
             plan=state.get("qa_plan", {}),
-            feedback_reason=feedback
+            feedback_reason=""
         )
 
         logger.info(f"Generated {len(qas)} QA pairs for {state.get('filename', 'unknown')}")
         return {"qa_pairs": qas}
-
-    def node_evaluate_qa(state: State) -> dict:
-        logger.info(f"Evaluating QA pairs for filename={state.get('filename', 'unknown')}")
-        evals = [qa_evaluator.evaluate(qa) for qa in state.get("qa_pairs", [])]
-        logger.info(f"Completed evaluating {len(evals)} QA pairs for filename={state.get('filename', 'unknown')}")
-        return {"qa_evaluation": evals}
-
-    def node_feedback_qa(state: State) -> dict:
-        qa_feedback_round = state.get("qa_feedback_round", 0)
-        evaluations = state.get("qa_evaluation", [])
-        passed = all(qa.get("pass_fail_flag") == "pass" for qa in evaluations)
-
-        if passed:
-            logger.info(f"All QA pairs passed evaluation for filename={state.get('filename', 'unknown')}, resetting QA feedback.")
-            return {
-                "qa_feedback": "",
-                "qa_feedback_round": 0,
-            }
-
-        if qa_feedback_round >= MAX_FEEDBACK_ROUNDS:
-            logger.error(f"Max QA feedback rounds reached for filename={state.get('filename', 'unknown')}, skipping regeneration.")
-            return {"qa_feedback_round": MAX_FEEDBACK_ROUNDS}
-
-        failed_feedbacks = [qa.get("feedback_reason", "") for qa in evaluations if qa.get("pass_fail_flag") != "pass"]
-        combined_feedback = "\n".join(filter(None, failed_feedbacks))
-
-        logger.info(f"Feedback for QA regeneration (round {qa_feedback_round + 1}): {combined_feedback}")
-
-        return {
-            "qa_feedback_round": qa_feedback_round + 1,
-            "qa_feedback": combined_feedback,
-        }
 
     def node_save_qa(state: State) -> dict:
         filename = state.get("filename", f"unknown_{state.get('index', 0)}")
         os.makedirs(output_dir, exist_ok=True)
         save_path = os.path.join(output_dir, f"QA_{filename}.csv")
         output_qa_dataset.save_dataset(
-            qa_pairs=state.get("qa_evaluation", []),
+            qa_pairs=state.get("qa_pairs", []),
             output_path=save_path,
             cleaned_text=state.get("cleaned_text", "")
         )
@@ -190,28 +166,21 @@ def create_workflow(input_path: str, output_dir: str):
     graph_builder.add_node("Clean_Text", node_clean_text)
     graph_builder.add_node("Quality_Check", node_quality_check)
     graph_builder.add_node("Feedback_Text", node_feedback_text)
+    graph_builder.add_node("Feedback_Router", node_feedback_router)
     graph_builder.add_node("Question_Plan", node_question_plan)
     graph_builder.add_node("Generate_QA", node_generate_qa)
-    graph_builder.add_node("Evaluate_QA", node_evaluate_qa)
-    graph_builder.add_node("Feedback_QA", node_feedback_qa)
     graph_builder.add_node("Save_QA", node_save_qa)
 
     graph_builder.add_edge(START, "Load_OCR")
     graph_builder.add_edge("Load_OCR", "Clean_Text")
     graph_builder.add_edge("Clean_Text", "Quality_Check")
     graph_builder.add_edge("Quality_Check", "Feedback_Text")
-
-    graph_builder.add_edge("Feedback_Text", "Clean_Text")
-    graph_builder.add_edge("Feedback_Text", "Question_Plan")
+    graph_builder.add_edge("Feedback_Text", "Feedback_Router")
+    graph_builder.add_edge("Feedback_Router", "Clean_Text")   
+    graph_builder.add_edge("Feedback_Router", "Question_Plan") 
     graph_builder.add_edge("Question_Plan", "Generate_QA")
-    graph_builder.add_edge("Generate_QA", "Evaluate_QA")
-    graph_builder.add_edge("Evaluate_QA", "Feedback_QA")
-
-    graph_builder.add_edge("Feedback_QA", "Generate_QA")
-    graph_builder.add_edge("Feedback_QA", "Save_QA")
-
-    graph_builder.add_edge("Save_QA", "Load_OCR")  
-    graph_builder.add_edge("Load_OCR", "Clean_Text")
+    graph_builder.add_edge("Generate_QA", "Save_QA")
+    graph_builder.add_edge("Save_QA", "Load_OCR")
 
     graph = graph_builder.compile()
     return graph

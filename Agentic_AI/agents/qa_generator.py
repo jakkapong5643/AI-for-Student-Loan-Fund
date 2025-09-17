@@ -8,7 +8,6 @@ def generate_qa(text: str, plan: dict, feedback_reason: str = "") -> List[Dict]:
 
     qas = []
 
-    # 🧠 รวม feedback reasoning (ถ้ามี) เข้ากับ prompt
     feedback_note = f"""
 ข้อเสนอแนะจากรอบก่อน:
 {feedback_reason}
