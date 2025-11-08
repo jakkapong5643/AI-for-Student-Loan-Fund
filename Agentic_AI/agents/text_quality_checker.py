@@ -1,6 +1,6 @@
 from utils.langchain_helpers import call_llm
 from configs import settings
-
+# evaluate text LLM as a judge
 def evaluate_text_quality(text: str) -> int:
     prompt = f"""
 ข้อความภาษาไทยต่อไปนี้ได้รับการแก้ไขแล้ว:
@@ -25,7 +25,7 @@ def evaluate_text_quality(text: str) -> int:
         return score
     except Exception:
         return 0
-    
+# Get Feedback reason
 def get_feedback_reason(text: str) -> str:
     prompt = f"""
 ข้อความต่อไปนี้เป็นข้อความภาษาไทยที่ได้รับการแก้ไขแล้ว:
@@ -41,3 +41,4 @@ def get_feedback_reason(text: str) -> str:
         return feedback.strip()
     except Exception as e:
         return "ไม่สามารถวิเคราะห์เหตุผลได้ในขณะนี้"
+
