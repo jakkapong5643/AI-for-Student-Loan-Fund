@@ -7,9 +7,10 @@ logging.basicConfig(
 )
 logging.getLogger("AFC").setLevel(logging.ERROR)
 
+# Set path 
 def main():
-    input_path = r"C:\Final Project\Code\Code\Agentic_AI\data\Input\test.csv"
-    output_dir = r"C:\Final Project\Code\Code\Agentic_AI\data\output2"
+    input_path = "\data\Input\test.csv"
+    output_dir = "\data\output"
 
     logging.info("Start workflow")
     graph = create_workflow(input_path, output_dir)
@@ -39,3 +40,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
