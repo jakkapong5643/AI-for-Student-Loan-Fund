@@ -1,7 +1,0 @@
-fastapi
-uvicorn[standard]
-faiss-cpu
-sentence-transformers
-langchain-community
-ollama
-pydantic
