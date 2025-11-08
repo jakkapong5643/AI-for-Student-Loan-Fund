@@ -5,6 +5,7 @@ from langgraph.graph.message import add_messages
 from datetime import datetime, timedelta
 import os
 
+# Logs
 logging.getLogger("AFC").setLevel(logging.CRITICAL)
 logging.getLogger("AFC").propagate = False
 
@@ -42,6 +43,7 @@ class State(TypedDict):
     quality_feedback: str
     need_question_plan: bool
 
+# Creat workflow
 def create_workflow(input_path: str, output_dir: str):
     ocr_records = ocr_text.load_ocr_text(input_path)
 
@@ -162,6 +164,7 @@ def create_workflow(input_path: str, output_dir: str):
 
         return {"index": i}
 
+    # conect node(Agent)
     graph_builder.add_node("Load_OCR", node_load_ocr)
     graph_builder.add_node("Clean_Text", node_clean_text)
     graph_builder.add_node("Quality_Check", node_quality_check)
@@ -184,3 +187,4 @@ def create_workflow(input_path: str, output_dir: str):
 
     graph = graph_builder.compile()
     return graph
+
